@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="PostgreSQL - capstone@localhost" uuid="d99939ac-1dea-44ae-967d-685145a2e8ca">
+      <secret-storage>master_key</secret-storage>
+      <user-name>dreamvents</user-name>
+      <schema-pattern>capstone.pg_catalog capstone.public</schema-pattern>
+      <default-schemas>capstone.public</default-schemas>
+    </data-source>
+  </component>
+</project>

@@ -1,0 +1,28 @@
+Create Virtual Environment
+conda create -n (virtual environment name) python
+
+Activate Virtual Environment
+activate (virtual environment name)
+
+Activate Virtual Environment
+deactivate (virtual environment name)
+
+View Virtual Environment
+conda list
+
+Install Packages
+conda install (packagename)
+
+Install Requirements
+conda install --file requirements.txt
+
+DATABSE ACCESS MANUALLY:
+\list (show the databases)
+\c capstonedb (connect to the capstone database)
+\dt (show the tables)
+\d+ tablename (describe table)
+select * from event; (show all the data in the database)
+alter table the_table alter column the_column type bigint using the_column::bigint (change variable type)
+
+DELETE ALL ROWS FROM TABLE
+truncate table tablename;
