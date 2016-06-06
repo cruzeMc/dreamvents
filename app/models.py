@@ -62,7 +62,7 @@ class Event(db.Model):
     capacity = db.Column(db.Integer)
     admission = db.Column(db.Numeric(10, 2))
     description = db.Column(db.String(120))
-    contact = db.Column(db.Integer)
+    contact = db.Column(db.BIGINT)
 
     comments = db.relationship('Comment', backref='event_comment', lazy='dynamic')
     ratings = db.relationship('Rating', backref='event_rating', lazy='dynamic')

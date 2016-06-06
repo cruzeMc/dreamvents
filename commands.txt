@@ -1,3 +1,7 @@
+Force git pull
+git fetch --all
+git reset --hard origin/master
+
 Create Virtual Environment
 conda create -n (virtual environment name) python
 
