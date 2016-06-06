@@ -14,9 +14,9 @@ for i in range(2016, 2031):
 def getCategory():
     category_names = [("", "Select Category")]
     try:
-        category = Category.query.all()
-        for i in category:
-            category_names.append((str(i.id), i.category_name))
+        cat = Category.query.all()
+        for z in cat:
+            category_names.append((str(z.id), z.category_name))
         return category_names
     except Exception:
         return category_names
