@@ -667,7 +667,7 @@ def feed_test():
 def recommend():
     user_id = g.user
     recommend_list = {}
-    recommend = []
+    recommend_ = []
     recommends = []
     users = Users.query.filter_by(id=user_id).first()
     category = users.users_category
@@ -680,20 +680,20 @@ def recommend():
         recommends.append(Event.query.filter_by(id=key).first())
     for evnt in recommends:
         due = time_remainding(evnt.date, evnt.start_time)
-        recommend.append(
+        recommend_.append(
             {"creator": evnt.creator, "category": evnt.category, "poster": evnt.poster, "eventname": evnt.eventname,
              "date": evnt.date, "star_time": evnt.start_time, "end_time": evnt.end_time, "venue": evnt.venue,
              "lat": evnt.lat, "lng": evnt.lng, "capacity": evnt.capacity, "addmission": evnt.admission,
              "description": evnt.description, "contact": evnt.contact, "days": due[0], "hours": due[1]})
 
-    recommend.sort(key=lambda x: (x["days"]))
-    cat_list = []
-    for i in category:
-        for v in recommend:
-            if v.get('category') == i.id and v.get('days') > 0:
+    recommend_.sort(key=lambda x: (x["days"]))
+    catlist = []
+    for c in category:
+        for v in recommend_:
+            if v.get('category') == c.id and v.get('days') > 0:
                 if i.category_name not in cat_list:
-                    cat_list.append(i.category_name)
-    return render_template('recommendations.html', recommend=recommend, recommends=recommends, category=category,
+                    catlist.append(c.category_name)
+    return render_template('recommendations.html', recommend=recommend_, recommends=recommends, category=category,
                            cat_list=cat_list)
 
 
@@ -836,7 +836,6 @@ def usearch():
                 return "testing-mindfire-1.jpg"
 
 
-@security.context_processor
 def time_remainding(dates, time):
     if dates and time:
         dates = dates.replace(",", "").split()
@@ -844,9 +843,8 @@ def time_remainding(dates, time):
         time = time.replace("am", "")
         time = time.replace("pm", "")
         time = time.split(":")
-        remainding = (datetime.datetime(int(dates[2]), int(month), int(dates[0]), int(time[0]), int(time[1]),
-                                        0) - datetime.datetime.now())
-        return [remainding.days, remainding.seconds / 3600]
+        remaining = (datetime.datetime(int(dates[2]), int(month), int(dates[0]), int(time[0]), int(time[1]), 0) - datetime.datetime.now())
+        return [remaining.days, remaining.seconds / 3600]
     return [0, 0]
 
 
