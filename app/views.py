@@ -57,7 +57,7 @@ def landing():
     return render_template('landing.html', lst=category_list)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
@@ -125,7 +125,6 @@ def home():
 ########################################################################################
 @security.context_processor
 @app.route('/events/<int:cat>', methods=['GET', 'POST'])
-@login_required
 def events_listing(cat):
     form = GetEventForm()
     event_lst = []
@@ -145,13 +144,13 @@ def events_listing(cat):
     return render_template('events.html', event_lst=event_lst, category=cat, form=form)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/about', methods=['GET'])
 def getsession():
     return redirect('https://goo.gl/VR68jM', code=302)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/payment', methods=['GET', 'POST'])
 @login_required
 def payment():
@@ -173,7 +172,7 @@ def payment():
     return render_template('payment.html', form=form, event=event, card_lst=card_lst, number=num)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
@@ -190,7 +189,7 @@ def account():
     return render_template('account.html', users=users, form=form, history=history, event=event)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/switch', methods=['GET', 'POST'])
 @login_required
 def switch():
@@ -204,7 +203,7 @@ def switch():
     return user.urole
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/add_payment', methods=['GET', 'POST'])
 @login_required
 def add_payment():
@@ -221,14 +220,14 @@ def add_payment():
     return render_template('add_payment.html', form=form)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/success', methods=["GET"])
 @login_required
 def success():
     return render_template('success.html')
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/failure', methods=['GET'])
 @login_required
 def failure():
@@ -278,7 +277,7 @@ def make_payment(user_id, first_name, last_name, payment_method, card_type, card
         return payment.error
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/what_if_analysis', methods=['GET'])
 @login_required
 @requires_roles('PROMOTER')
@@ -376,7 +375,7 @@ def filtered_recommendation():
         return [raw_lst, predicted_lst]
 
 
-@security.context_processor
+# @security.context_processor
 @app.route("/welcome", methods=['GET', 'POST'])
 @login_required
 def welcome():
@@ -393,7 +392,7 @@ def welcome():
     return render_template('welcome.html', lst=category_list)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/newevent', methods=['GET', 'POST'])
 @login_required
 @requires_roles('PROMOTER')
@@ -411,7 +410,7 @@ def newevent():
     return render_template('newevent.html', form=form, user_id=user_id)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/details/<idnum>', methods=['GET', 'POST'])
 def details(idnum):
     form = GetEventForm()
@@ -438,7 +437,7 @@ def getUsername(user_id):
 app.jinja_env.globals.update(getEmail=getUsername)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/statistics', methods=['GET', 'POST'])
 @login_required
 @requires_roles('PROMOTER')
@@ -449,7 +448,7 @@ def stats():
     return render_template('test.html', events=events, creator=creator)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/update_event', methods=['GET', 'POST'])
 @login_required
 def update_event():
@@ -490,7 +489,7 @@ def update_event():
     return render_template('event_update.html', event=event, form=form)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/stats', methods=['GET', 'POST'])
 @login_required
 @requires_roles('PROMOTER')
@@ -519,7 +518,7 @@ def getStats():
                            comments=json.dumps(comments), days=days)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/comment_sent', methods=['GET', 'POST'])
 def add_comment():
     post = request.args.get('b', type=str)
@@ -533,7 +532,7 @@ def add_comment():
     return jsonify(result=post)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/comment_recieved')
 def get_comments():
     event_id = request.args.get('c', type=str)
@@ -541,17 +540,18 @@ def get_comments():
     return render_template('comments.html', comments=comments)
 
 
-@security.context_processor
+# @security.context_processor
 @login_manager.user_loader
 def load_user(id):
     return Users.query.get(int(id))
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/profile')
-@login_required
+# @login_required
 def profile():
     return render_template('profile.html', title='Profile Page', facebook_conn=social.facebook.get_connection())
+
 
 @security.context_processor
 @app.route('/register', methods=['GET', 'POST'])
@@ -562,7 +562,7 @@ def register():
 
     return render_template('login2.html', form=form)
 
-@security.context_processor
+# @security.context_processor
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -580,13 +580,13 @@ def login():
     return render_template("login.html", form=form)
 
 
-@security.context_processor
+# @security.context_processor
 @app.before_request
 def before_request():
     g.user = current_user.get_id()
 
 
-@security.context_processor
+# @security.context_processor
 @app.route("/logout")
 @login_required
 def logout():
@@ -595,7 +595,7 @@ def logout():
     return redirect(url_for('landing'))
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignupForm()
@@ -620,7 +620,7 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/rating_sent', methods=['GET', 'POST'])
 @login_required
 def rating_sent():
@@ -654,14 +654,14 @@ def rating_sent():
         return jsonify(result=rating_num)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/feed_test', methods=['GET', 'POST'])
 @login_required
 def feed_test():
     return render_template('feed_test.html')
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/recommendations', methods=['GET', 'POST'])
 @login_required
 def recommend():
@@ -729,7 +729,7 @@ def top_recommend(event_id):
 app.jinja_env.globals.update(top_recommend=top_recommend)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/page_count', methods=['GET', 'POST'])
 @login_required
 def page_clicks():
@@ -813,7 +813,7 @@ def picture():
 app.jinja_env.globals.update(picture=picture)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/search', methods=["POST", "GET"])
 def search():
     if request.method == 'POST':
@@ -823,7 +823,7 @@ def search():
             return render_template('search.html', events=events, search_text=search_text)
 
 
-@security.context_processor
+# @security.context_processor
 @app.route('/usersearch', methods=["POST", "GET"])
 def usearch():
     if request.method == 'POST':
@@ -848,7 +848,7 @@ def time_remainding(dates, time):
     return [0, 0]
 
 
-@security.context_processor
+# @security.context_processor
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
