@@ -20,6 +20,7 @@ import uuid
 from sklearn import linear_model
 from random import randint
 from flask_security import Security, SQLAlchemyUserDatastore, login_required
+from flask_security.decorators import anonymous_user_required
 from flask_social import SQLAlchemyConnectionDatastore
 from flask_social.utils import get_provider_or_404
 from flask_social.views import connect_handler
@@ -110,7 +111,7 @@ def home():
                 {"id": evnts.id, "creator": evnts.creator, "category": evnts.category, "poster": evnts.poster,
                  "eventname": evnts.eventname, "date": evnts.date, "start_time": evnts.start_time,
                  "end_time": evnts.end_time, "venue": evnts.venue, "lat": evnts.lat, "lng": evnts.lng,
-                 "capacity": evnts.capacity, "addmission": evnts.admission, "description": evnts.description,
+                 "capacity": evnts.capacity, "admission": evnts.admission, "description": evnts.description,
                  "contact": evnts.contact, "days": due[0], "hours": due[1]})
 
     if recommend:
@@ -118,6 +119,15 @@ def home():
                                category=category, cat_list=cat_list)
     else:
         return redirect(url_for('welcome'))
+
+
+@app.route('/news_feed')
+def news_feed():
+    photos = db.session.query(UserPhoto).filter_by(g.user)
+    photo_comment = db.session.query(UserPhotoComment).filter_by(g.user)
+    videos = db.session.query(UserVideo).filter_by(g.user)
+    video_comment = db.session.query(UserVideoComment).filter_by(g.user)
+    return render_template('news_feed.html', photos=photos, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
 
 
 ########################################################################################
@@ -562,6 +572,7 @@ def register():
 
     return render_template('login2.html', form=form)
 
+
 # @security.context_processor
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -843,7 +854,8 @@ def time_remainding(dates, time):
         time = time.replace("am", "")
         time = time.replace("pm", "")
         time = time.split(":")
-        remaining = (datetime.datetime(int(dates[2]), int(month), int(dates[0]), int(time[0]), int(time[1]), 0) - datetime.datetime.now())
+        remaining = (datetime.datetime(int(dates[2]), int(month), int(dates[0]), int(time[0]), int(time[1]),
+                                       0) - datetime.datetime.now())
         return [remaining.days, remaining.seconds / 3600]
     return [0, 0]
 

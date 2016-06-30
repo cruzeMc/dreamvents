@@ -30,6 +30,12 @@ roles_users = db.Table(
     db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
 )
 
+followers = db.Table(
+    'followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
+)
+
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -37,7 +43,7 @@ class Category(db.Model):
     image = db.Column(db.String(80), nullable=False)
 
     categories = db.relationship('Users', secondary=selected_category, backref=db.backref('users_category', lazy='dynamic'))
-    events = db.relationship('Event', backref='category_event', lazy='dynamic')  # One to Many
+    events = db.relationship('Event', backref='category_event', lazy='dynamic')
 
     def __init__(self, category_name, image):
         self.category_name = category_name
@@ -109,13 +115,25 @@ class Users(db.Model, UserMixin):
     age = db.Column(db.String(30))
     confirmed_at = db.Column(db.DateTime())
     active = db.Column(db.Boolean())
+    last_seen = db.Column(db.DateTime)
     urole = db.Column(db.String(8))
 
-    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users_roles', lazy='dynamic'))
     comments = db.relationship('Comment', backref='users_comment', lazy='dynamic')
+    payments = db.relationship('Payment', backref='users_payment', lazy='dynamic')
+    user_photo = db.relationship('Userphoto', backref='users_photo', lazy='dynamic')
+    user_photo_comment = db.relationship('Userphotocomment', backref='users_photo_comment', lazy='dynamic')
+    user_video = db.relationship('UserVideo', backref='users_video', lazy='dynamic')
+    user_video_comment = db.relationship('Uservideocomment', backref='users_video', lazy='dynamic')
+
+    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users_roles', lazy='dynamic'))
     events = db.relationship('Event', secondary=selected_event, backref=db.backref('users_event', lazy='dynamic'))
     cards = db.relationship('Card', secondary=card_association, backref=db.backref('users_card', lazy='dynamic'))
-    payments = db.relationship('Payment', backref='users_payment', lazy='dynamic')
+    followed = db.relationship('Users',
+                               secondary=followers,
+                               primaryjoin=(followers.c.follower_id == id),
+                               secondaryjoin=(followers.c.followed_id == id),
+                               backref=db.backref('followers', lazy='dynamic'),
+                               lazy='dynamic')
     
     def __init__(self, first_name, last_name, usersname, pic, email, address, sex, age, password, urole):
         self.password = password
@@ -152,6 +170,19 @@ class Users(db.Model, UserMixin):
 
     def get_urole(self):
         return self.urole
+
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.apppend(user)
+            return self
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+            return self
+
+    def is_following(self, user):
+        return self.follwed.filter(followers.c.followed_id == user.id).count() > 0
 
     def __repr__(self):
         return '<users %r>' % self.usersname
@@ -271,3 +302,51 @@ class Payment(db.Model):
 
     def __repr__(self):
         return '<Transaction amount %r>' % (self.price * self.quantity)
+
+
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    sender_id = db.Column('sender_id', db.Integer, db.ForeignKey('users.id'))
+    receiver_id = db.Column('receiver_id', db.Integer, db.ForeignKey('users.id'))
+    body = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime())
+
+
+class ChatStatus(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.String(20))
+
+
+class Userphoto(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+    image = db.Column(db.String(100))
+    timestamp = db.Column(db.DateTime())
+
+    user_photo_comment = db.relationship('Userphotocomment', backref='user_photo_user_comment', lazy='dynamic')
+
+
+class UserPhotoComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+    image_id = db.Column('image_id', db.Integer, db.ForeignKey('userphoto.id'))
+    comment = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime())
+
+
+class Uservideo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+    video = db.Column(db.String(100))
+    timestamp = db.Column(db.DateTime())
+
+    user_video_comment = db.relationship('Uservideocomment', backref='user_video_user_comment', lazy='dynamic')
+
+
+class Uservideocomment(db.Model):
+    commenter_id = db.Column('commenter_id', db.Integer, db.ForeignKey('users.id'))
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    video_id = db.Column('video_id', db.Integer, db.ForeignKey('uservideo.id'))
+    comment = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime())
