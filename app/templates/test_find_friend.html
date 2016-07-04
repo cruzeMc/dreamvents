@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block additional %}
+    {% include "layout.html" %}
+{% endblock %}
+{% block body %}
+    <script type="text/javascript">
+        var follow_friend = function (e) {
+            $.getJSON($SCRIPT_ROOT + '/friend_handler', {
+                a: e
+            });
+            return false;
+        };
+
+{#        $('body').click(function (event) {#}
+        function send_result(result) {
+            console.log(result);
+            follow_friend(result);
+        }
+{#            if (parseInt(event.target.id) === parseInt(event.target.id, 10)) {#}
+{#                console.log(event.target.id);#}
+{#                follow_friend(event.target.id);#}
+{#                Materialize.toast('You rated this event' + " " + event.target.id, 3000, 'rounded');#}
+{#            }#}
+{#        });#}
+    </script>
+    {% for f in friend %}
+        <p>{{ f.usersname }} <a id="{{ f.id }}" onClick="send_result(this.id)" class="btn-floating btn-large waves-effect waves-light tooltipped blue" data-position="right" data-delay="50" data-tooltip="follow"><i class="material-icons">done</i></a></p>
+    {% endfor %}
+{% endblock %}

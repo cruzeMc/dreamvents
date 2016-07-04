@@ -29,22 +29,22 @@
 <meta id="event_data" name="event_data" content="{{ event.id }}">
 
 <script type="text/javascript">
-   	var submit_rating = function(e){
-   		var id = $('meta[name=event_data]').attr("content");
-		$.getJSON($SCRIPT_ROOT + '/rating_sent', {
-			    a:(e+parseInt(id))
-		}, function(data) {
-			$('#results').text(data.result);
-		});
-		return false;
-	};
+    var submit_rating = function(e){
+        var id = $('meta[name=event_data]').attr("content");
+        $.getJSON($SCRIPT_ROOT + '/rating_sent', {
+            a:(e+parseInt(id))
+        }, function(data) {
+            $('#results').text(data.result);
+        });
+        return false;
+    };
 
-	$('body').click(function(event) {
-    	if(parseInt(event.target.id) === parseInt(event.target.id, 10)) {
-    		submit_rating(event.target.id);
-    		Materialize.toast('You rated this event' + " " + event.target.id, 3000, 'rounded');
-    	}
-	});
+    $('body').click(function(event) {
+        if(parseInt(event.target.id) === parseInt(event.target.id, 10)) {
+            submit_rating(event.target.id);
+            Materialize.toast('You rated this event' + " " + event.target.id, 3000, 'rounded');
+        }
+    });
 </script>
 {% include 'ratings.html' %}
 <div class="details">

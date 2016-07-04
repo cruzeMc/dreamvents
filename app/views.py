@@ -25,6 +25,7 @@ from flask_social import SQLAlchemyConnectionDatastore
 from flask_social.utils import get_provider_or_404
 from flask_social.views import connect_handler
 from flask_social import Social
+import pdb
 
 # app.secret_key = str(uuid.uuid4())
 user_datastore = SQLAlchemyUserDatastore(db, Users, Role)
@@ -121,13 +122,69 @@ def home():
         return redirect(url_for('welcome'))
 
 
-@app.route('/news_feed')
+@app.route('/news_feed', methods=['GET'])
+@login_required
 def news_feed():
-    photos = db.session.query(UserPhoto).filter_by(g.user)
-    photo_comment = db.session.query(UserPhotoComment).filter_by(g.user)
-    videos = db.session.query(UserVideo).filter_by(g.user)
-    video_comment = db.session.query(UserVideoComment).filter_by(g.user)
-    return render_template('news_feed.html', photos=photos, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
+    # photos = db.session.query(UserPhoto).filter_by(g.user)
+    # photo_comment = db.session.query(UserPhotoComment).filter_by(g.user)
+    # videos = db.session.query(UserVideo).filter_by(g.user)
+    # video_comment = db.session.query(UserVideoComment).filter_by(g.user)
+    return render_template('news_feed.html')#, photos=photos, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
+
+
+def follow(fol_id):
+    user_fol = db.session.query(Users).filter_by(id=fol_id).first()
+    if user_fol is None:
+        return "Not exist"
+    elif user_fol == g.user:
+        return "Can't follow yourself"
+
+    u_fol = current_user.follow(user_fol)
+    if u_fol is None:
+        return "Can't follow user"
+    db.session.add(u_fol)
+    db.session.commit()
+    return "Successfully following user"
+
+
+def unfollow(fol_id):
+    user_fol = db.session.query(Users).filter_by(id=fol_id).first()
+    if user_fol is None:
+        return "Not exist"
+    elif user_fol == g.user:
+        return "Can't unfollow yourself"
+
+    u = current_user.unfollow(user_fol)
+    if u is None:
+        return "Can't unfollow user"
+
+    db.session.add(u)
+    db.session.commit()
+    return "Successfully unfollowed user"
+
+
+@app.route('/find_friend', methods=['GET', 'POST'])
+@login_required
+def find_friend():
+    friend = Users.query.filter(Users.id != current_user.id).all()
+    return render_template('test_find_friend.html', friend=friend)
+
+
+@app.route('/friend_handler', methods=['GET', 'POST'])
+@login_required
+def friend_handler():
+    try:
+        click = request.args.get('a', None, type=str)
+        fol_already = db.session.query(followers).filter_by(follower_id=g.user, followed_id=int(click)).first()
+
+        if fol_already is None:
+            return follow(int(click))
+
+        else:
+            return unfollow(int(click))
+
+    except:
+        return "An fatal error occurred"
 
 
 ########################################################################################
@@ -611,10 +668,9 @@ def logout():
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
-        file = request.files['profile_pic']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        pic = request.files['profile_pic']
+        if pic and allowed_file(pic.filename):
+            filename = secure_filename(pic.filename)
             first_name = form.first_name.data
             last_name = form.last_name.data
             username = form.username.data
@@ -625,7 +681,9 @@ def signup():
             sex = form.sex.data
             utype = form.utype.data
             new_user = Users(first_name, last_name, username, filename, email, address, sex, age, password, utype)
+            pic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             db.session.add(new_user)
+            db.session.add(new_user.follow(new_user))
             db.session.commit()
             return redirect(url_for('login'))
     return render_template('signup.html', form=form)

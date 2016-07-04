@@ -122,7 +122,7 @@ class Users(db.Model, UserMixin):
     payments = db.relationship('Payment', backref='users_payment', lazy='dynamic')
     user_photo = db.relationship('Userphoto', backref='users_photo', lazy='dynamic')
     user_photo_comment = db.relationship('Userphotocomment', backref='users_photo_comment', lazy='dynamic')
-    user_video = db.relationship('UserVideo', backref='users_video', lazy='dynamic')
+    user_video = db.relationship('Uservideo', backref='users_video', lazy='dynamic')
     user_video_comment = db.relationship('Uservideocomment', backref='users_video', lazy='dynamic')
 
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users_roles', lazy='dynamic'))
@@ -173,7 +173,7 @@ class Users(db.Model, UserMixin):
 
     def follow(self, user):
         if not self.is_following(user):
-            self.followed.apppend(user)
+            self.followed.append(user)
             return self
 
     def unfollow(self, user):
@@ -182,7 +182,11 @@ class Users(db.Model, UserMixin):
             return self
 
     def is_following(self, user):
-        return self.follwed.filter(followers.c.followed_id == user.id).count() > 0
+        return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+
+    # def followed_posts(self):
+    #     return Post.query.join(followers, (followers.c.followed_id == Post.user_id)).filter(
+    #         followers.c.follower_id == self.id).order_by(Post.timestamp.desc())
 
     def __repr__(self):
         return '<users %r>' % self.usersname
@@ -327,7 +331,7 @@ class Userphoto(db.Model):
     user_photo_comment = db.relationship('Userphotocomment', backref='user_photo_user_comment', lazy='dynamic')
 
 
-class UserPhotoComment(db.Model):
+class Userphotocomment(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
     image_id = db.Column('image_id', db.Integer, db.ForeignKey('userphoto.id'))
