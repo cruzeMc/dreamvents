@@ -178,10 +178,10 @@ def friend_handler():
         fol_already = db.session.query(followers).filter_by(follower_id=g.user, followed_id=int(click)).first()
 
         if fol_already is None:
-            return follow(int(click))
+            return jsonify(result=follow(int(click)))
 
         else:
-            return unfollow(int(click))
+            return jsonify(result=unfollow(int(click)))
 
     except:
         return "An fatal error occurred"

@@ -7,23 +7,23 @@
         var follow_friend = function (e) {
             $.getJSON($SCRIPT_ROOT + '/friend_handler', {
                 a: e
+            }, function (data) {
+                if (data.result == "Successfully following user"){
+                    $('#results'+String(e)).text("done");
+                }
+                else{
+                    $('#results'+String(e)).text("indeterminate_check_box");
+                }
             });
             return false;
         };
 
-{#        $('body').click(function (event) {#}
-        function send_result(result) {
-            console.log(result);
-            follow_friend(result);
+        function send_result(res) {
+            console.log(res);
+            follow_friend(res);
         }
-{#            if (parseInt(event.target.id) === parseInt(event.target.id, 10)) {#}
-{#                console.log(event.target.id);#}
-{#                follow_friend(event.target.id);#}
-{#                Materialize.toast('You rated this event' + " " + event.target.id, 3000, 'rounded');#}
-{#            }#}
-{#        });#}
     </script>
     {% for f in friend %}
-        <p>{{ f.usersname }} <a id="{{ f.id }}" onClick="send_result(this.id)" class="btn-floating btn-large waves-effect waves-light tooltipped blue" data-position="right" data-delay="50" data-tooltip="follow"><i class="material-icons">done</i></a></p>
+        <p>{{ f.usersname }} <a id="{{ f.id }}" onClick="send_result(this.id)" class="btn-floating btn-large waves-effect waves-light tooltipped blue" data-position="right" data-delay="50" data-tooltip="follow"><i id="results{{ f.id }}" class="material-icons">check_box_outline_blank</i></a></p>
     {% endfor %}
 {% endblock %}
