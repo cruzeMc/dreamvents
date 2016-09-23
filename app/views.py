@@ -851,6 +851,17 @@ def user():
 
 app.jinja_env.globals.update(user=user)
 
+def email():
+    user_id = g.user
+    if user_id:
+        user = Users.query.filter_by(id=user_id).first()
+        return user.email
+    else:
+        return "No email"
+
+
+app.jinja_env.globals.update(email=email)
+
 
 def categorys():
     category = Category.query.all()

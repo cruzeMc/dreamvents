@@ -1,35 +1,25 @@
 {% extends "base.html" %}
+{% block additional %}
+    <link id="page_style" rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/landing_desktop.css') }}">
+    <script>
+        function swap_stylesheet() {
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                document.getElementById("page_style").setAttribute('href', '{{ url_for('static', filename='css/landing_mobile.css') }}');
+            }
+        }
+    </script>
+{% endblock %}
 {% block body %}
-    <div class="row" style="width:900px;">
-        <div class="col s12 z-depth-5 card-panel">
-            <div class="landing" style="float:left;margin-left:150px;">
-                {% for i in lst[:3] %}
-                    <div class="col s12 m6 l3">
-                        <div class="card-panel hoverable">
-                            <a href="/events/{{ i.id }}"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
-                            <span class="card-title">{{ i.category_name }}</span>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-
-            <div class="landing" style="float:left;margin-left:150px;">
-                {% for i in lst[3:6] %}
-                    <div class="col s12 m6 l3">
-                        <div class="card-panel hoverable">
-                            <a href="/events/{{ i.id }}"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
-                            <span class="card-title">{{ i.category_name }}</span>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-
-            <div class="landing" style="float:left;margin-left:150px;">
-                {% for i in lst[6:] %}
-                    <div class="col s12 m6 l3">
-                        <div class="card-panel hoverable">
-                            <a href="/events/{{ i.id }}"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
-                            <span class="card-title">{{ i.category_name }}</span>
+    <div class="container">
+        <div class="row">
+            <div class="landing">
+                {% for i in lst %}
+                    <div class="col s12 m4 l4">
+                        <div class="card-panel hoverable small">
+                            <div class="card-image">
+                                <a href="/events/{{ i.id }}"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
+                                <span class="card-title">{{ i.category_name }}</span>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}

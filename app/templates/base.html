@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html>
-	<head>
+    <head>
         <!-- <title{{ title }}></title> -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.12.1.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
-
-        <style>
-            #landing{
-              padding-left: 240px;
-            }
-        </style>
         {% block additional %}
         {% endblock %}
     </head>
-    <body>
+    <body onload="swap_stylesheet()">
         {% if user()=="Guest" %}
             <header>
-                {% include "header1.html" %}
+                {% include "header_guest.html" %}
             </header>
         {% endif %}
 
         {% if user()!="Guest" and user_role()=="USER" %}
             <header>
-                {% include "header.html" %}
+                {% include "header_patron.html" %}
             </header>
         {% endif %}
 
         {% if user()!="Guest" and user_role()=="PROMOTER" %}
             <header>
-                {% include "header2.html" %}
+                {% include "header_promoter.html" %}
             </header>
         {% endif %}
 
@@ -43,7 +37,7 @@
         <footer>
             {% include "footer.html" %}
         </footer>
-        <!--<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.12.1.js') }}"></script>-->
+        <!--<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>-->
 
         <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/search1.js') }}"></script>

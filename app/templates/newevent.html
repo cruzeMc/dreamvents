@@ -42,7 +42,7 @@
   <div class="col s12 z-depth-6 card-panel">
     <div class="row">
       <div class="input-field col s12 center">
-        <p class="center login-form-text">DREAMVENT - Create Event</p>
+        <p class="center login-form-text">MicroMoments - Create Event</p>
       </div>
     </div>
     
@@ -261,7 +261,7 @@
           
           <div class="input-field col s12 l6">
             <i class="material-icons prefix">phone in talk</i>
-            {{form.contact(type="text",id="textarea2",onkeypress="if ( isNaN( String.fromCharCode(event.keyCode) )) return false;", placeholder="Numbers Only")}}
+            {{form.contact(type="text",id="textarea2",onkeypress="if ( isNaN( String.fromCharCode(event.keyCode) )) return false;")}}
                  {% for contact_error in form.contact.errors %}
                    <li style="color:red;margin:left:20px;list-style-type:none;">{{ contact_error }}</li>
                  {% endfor %}
@@ -273,11 +273,7 @@
           <button class="waves-effect waves-light btn-large" type="submit" name="action" style="float:right;">Submit
             <i class="material-icons right">send</i>
           </button>
-          <!--<div class="input-field col s12">-->
-          <!--  <p class="margin center medium-small sign-up">Already have an account? <a href="{{url_for('login')}}">Login</a></p>-->
-          <!--</div>-->
         </div>
-        
     </form>
   </div>
   </div>
