@@ -15,9 +15,9 @@
             <div class="landing">
                 {% for i in lst %}
                     <div class="col s12 m4 l4">
-                        <div class="card-panel hoverable small">
+                        <div class="card-panel hoverable medium">
                             <div class="card-image">
-                                <a href="/events/{{ i.id }}"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
+                                <a href="/events/{{ i.id }}" style="margin:auto"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
                                 <span class="card-title">{{ i.category_name }}</span>
                             </div>
                         </div>
