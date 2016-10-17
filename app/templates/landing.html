@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block additional %}
-    <link id="page_style" rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/landing_desktop.css') }}">
+    <link id="page_style" rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='css/landing_desktop.css') }}"
+          xmlns:height="http://www.w3.org/1999/xhtml">
     <script>
         function swap_stylesheet() {
             if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
@@ -10,14 +12,40 @@
     </script>
 {% endblock %}
 {% block body %}
-    <div class="container">
+    <div class="parallax-container">
+        <div class="carousel carousel-slider center" data-indicators="true">
+            <div class="carousel-fixed-item center">
+                <a class="btn waves-effect white grey-text darken-text-2">button</a>
+            </div>
+            <div class="carousel-item red white-text" href="#one!">
+                <h2>First Panel</h2>
+                <p class="white-text">This is your first panel</p>
+            </div>
+            <div class="carousel-item amber white-text" href="#two!">
+                <h2>Second Panel</h2>
+                <p class="white-text">This is your second panel</p>
+            </div>
+            <div class="carousel-item green white-text" href="#three!">
+                <h2>Third Panel</h2>
+                <p class="white-text">This is your third panel</p>
+            </div>
+            <div class="carousel-item blue white-text" href="#four!">
+                <h2>Fourth Panel</h2>
+                <p class="white-text">This is your fourth panel</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section white container">
         <div class="row">
             <div class="landing">
                 {% for i in lst %}
                     <div class="col s12 m4 l4">
                         <div class="card-panel hoverable medium">
                             <div class="card-image">
-                                <a href="/events/{{ i.id }}" style="margin:auto"><img src="{{ i.image }}" alt="" class="circle responsive-img"></a>
+                                <a href="/events/{{ i.id }}" style="margin:auto;"><img
+                                        src="/static/background/jpg/party_img.jpg" alt=""
+                                        class="circle responsive-img"></a>
                                 <span class="card-title">{{ i.category_name }}</span>
                             </div>
                         </div>
@@ -26,4 +54,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.carousel.carousel-slider').carousel({full_width: true});
+
+            window.setInterval(function () {
+                $('.carousel').carousel('next')
+            }, 3000);
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('.parallax').parallax();
+        });
+    </script>
 {% endblock %}

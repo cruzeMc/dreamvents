@@ -1,4 +1,4 @@
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, FileField, PasswordField, SubmitField, RadioField, IntegerField, SelectField, validators
 from wtforms.validators import DataRequired, InputRequired, Email
 from flask_wtf.file import FileField, FileRequired
@@ -21,13 +21,13 @@ def getCategory():
     except Exception:
         return category_names
 
-class Login2(Form):
+class Login2(FlaskForm):
     username = StringField('Username', validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
     remember = BooleanField('Remember me')
     confirm = SubmitField('Login')
 
-class EventForm(Form):
+class EventForm(FlaskForm):
     poster = FileField('Poster')
     eventname = StringField('Event Name', validators=[DataRequired()])
     category = SelectField('Category', choices=getCategory(), validators=[DataRequired()])
@@ -43,7 +43,7 @@ class EventForm(Form):
     contact = StringField('contact')
 
 
-class UpdateForm(Form):
+class UpdateForm(FlaskForm):
     idnum = StringField('id')
     poster = FileField('Poster')
     eventname = StringField('Event Name')
@@ -60,16 +60,16 @@ class UpdateForm(Form):
     contact = StringField('contact')
 
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
     email = StringField('Email', [validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        FlaskForm.__init__(self, *args, **kwargs)
         self.user = None
 
     def validate(self):
-        rv = Form.validate(self)
+        rv = FlaskForm.validate(self)
         if not rv:
             return False
 
@@ -86,7 +86,7 @@ class LoginForm(Form):
         return True
 
 
-class SignupForm(Form):
+class SignupForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     username = StringField('User Name', validators=[DataRequired(), validators.DataRequired()])
@@ -100,11 +100,11 @@ class SignupForm(Form):
     utype = SelectField('Account Type', choices=[("", "Select Account Type"), ("USER", "User"), ("PROMOTER", "Promoter")], validators=[validators.DataRequired(message='Please Select an account Type')])
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        FlaskForm.__init__(self, *args, **kwargs)
         self.user = None
 
     def validate(self):
-        rv = Form.validate(self)
+        rv = FlaskForm.validate(self)
         if not rv:
             return False
 
@@ -122,12 +122,12 @@ class SignupForm(Form):
         return True
 
 
-class CommentForm(Form):
+class CommentForm(FlaskForm):
     post = StringField('Post', [DataRequired()])
     submit = SubmitField('Post')
 
 
-class CategoryForm(Form):
+class CategoryForm(FlaskForm):
     parties = BooleanField('PARTIES')
     cultures = BooleanField('CULTURES')
     foods = BooleanField('FOODS')
@@ -139,17 +139,17 @@ class CategoryForm(Form):
     corporate = BooleanField('CORPORATE')
 
 
-class CardForm(Form):
+class CardForm(FlaskForm):
     card_num = IntegerField('Card Number', validators=[DataRequired()])
     card_type = SelectField('Card Type', choices=c_type, validators=[validators.DataRequired(message='Please Select a card Type')])
     expire_month = SelectField('Expire Month', choices=e_month, validators=[validators.DataRequired(message='Please select a valid Expiration Month')])
     expire_year = SelectField('Expire Year', choices=e_year, validators=[validators.DataRequired(message='Please select a valid Expiration Year')])
     payment_method = SelectField('Payment Method', choices=p_method, validators=[validators.DataRequired(message='Please select your payment method')])
 
-class PaymentForm(Form):
+class PaymentForm(FlaskForm):
     card_num = RadioField('Card Number', validators=[InputRequired()])
     event_num = IntegerField('Price', validators=[InputRequired()])
     qty = IntegerField('Quantity', validators=[InputRequired()])
 
-class GetEventForm(Form):
+class GetEventForm(FlaskForm):
     event_number = IntegerField('Event Number')

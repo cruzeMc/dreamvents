@@ -7,6 +7,8 @@ Flask-Migrate
 Flask-WTF
 Flask-Uploads
 Flask-Sijax
+Flask-Compress
+django-htmlmin
 Jinja2
 Werkzeug
 gunicorn
@@ -21,4 +23,6 @@ Flask-Security
 Flask-Social
 oauth2client
 google-api-python-client
-http://github.com/pythonforfacebook/facebook-sdk/tarball/master
+facebook-sdk
+python-twitter
+python-instagram

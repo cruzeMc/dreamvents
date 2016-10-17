@@ -26,8 +26,8 @@ from flask_social.utils import get_provider_or_404
 from flask_social.views import connect_handler
 from flask_social import Social
 import pdb
+from htmlmin.minify import html_minify
 
-# app.secret_key = str(uuid.uuid4())
 user_datastore = SQLAlchemyUserDatastore(db, Users, Role)
 security = Security(app, user_datastore)
 social = Social(app, SQLAlchemyConnectionDatastore(db, Connection))
@@ -56,8 +56,8 @@ def requires_roles(*roles):
 @app.route("/landing")
 def landing():
     category_list = db.session.query(Category).all()
-    return render_template('landing.html', lst=category_list)
-
+    rendered_html = render_template('landing.html', lst=category_list)
+    return html_minify(rendered_html)
 
 # @security.context_processor
 @app.route('/home', methods=['GET', 'POST'])
@@ -116,8 +116,10 @@ def home():
                  "contact": evnts.contact, "days": due[0], "hours": due[1]})
 
     if recommend:
-        return render_template('home.html', recommend=recommend, recommendings=recommendings, recommends=recommends,
+        rendered_html = render_template('home.html', recommend=recommend, recommendings=recommendings, recommends=recommends,
                                category=category, cat_list=cat_list)
+        return html_minify(rendered_html)
+
     else:
         return redirect(url_for('welcome'))
 
@@ -129,7 +131,9 @@ def news_feed():
     # photo_comment = db.session.query(UserPhotoComment).filter_by(g.user)
     # videos = db.session.query(UserVideo).filter_by(g.user)
     # video_comment = db.session.query(UserVideoComment).filter_by(g.user)
-    return render_template('news_feed.html')#, photos=photos, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
+    rendered_html = render_template('news_feed.html')#, photos=photos, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
+    return html_minify(rendered_html)
+
 
 
 def follow(fol_id):
@@ -167,7 +171,8 @@ def unfollow(fol_id):
 @login_required
 def find_friend():
     friend = Users.query.filter(Users.id != current_user.id).all()
-    return render_template('test_find_friend.html', friend=friend)
+    rendered_html = render_template('test_find_friend.html', friend=friend)
+    return html_minify(rendered_html)
 
 
 @app.route('/friend_handler', methods=['GET', 'POST'])
@@ -208,7 +213,8 @@ def events_listing(cat):
     if request.method == "POST":
         session['event_number'] = form.event_number.data
         return redirect(url_for('payment'))
-    return render_template('events.html', event_lst=event_lst, category=cat, form=form)
+    rendered_html = render_template('events.html', event_lst=event_lst, category=cat, form=form)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -236,7 +242,8 @@ def payment():
         else:
             k = str(pay['details'][0]['field']) + ": " + str(pay['details'][0]['issue'])
             return render_template('failure.html', k=k)
-    return render_template('payment.html', form=form, event=event, card_lst=card_lst, number=num)
+    rendered_html = render_template('payment.html', form=form, event=event, card_lst=card_lst, number=num)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -253,7 +260,8 @@ def account():
     ev = db.session.query(Event).filter(Event.id.in_(lst)).all()
     for j in range(len(ev)):
         event.append({'id': ev[j].id, 'eventname': ev[j].eventname})
-    return render_template('account.html', users=users, form=form, history=history, event=event)
+    rendered_html = render_template('account.html', users=users, form=form, history=history, event=event)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -284,21 +292,24 @@ def add_payment():
         db.session.add(new_card)
         db.session.commit()
         return redirect(url_for('home'))
-    return render_template('add_payment.html', form=form)
+    rendered_html = render_template('add_payment.html', form=form)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
 @app.route('/success', methods=["GET"])
 @login_required
 def success():
-    return render_template('success.html')
+    rendered_html = render_template('success.html')
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
 @app.route('/failure', methods=['GET'])
 @login_required
 def failure():
-    return render_template('failure.html')
+    rendered_html = render_template('failure.html')
+    return html_minify(rendered_html)
 
 
 def make_payment(user_id, first_name, last_name, payment_method, card_type, card_num, expire_month, expire_year,
@@ -358,7 +369,8 @@ def what_if_analysis():
         pay = db.session.query(Payment).filter_by(event_id=ev_id).order_by('users_id desc').all()
 
         if len(views) < 2 or len(ratings) < 2 or len(pay) < 2:
-            return render_template("failure.html", k="There is not enough data to do the processing")
+            rendered_html = render_template("failure.html", k="There is not enough data to do the processing")
+            return html_minify(rendered_html)
 
         test = False
         for i in event:
@@ -366,7 +378,8 @@ def what_if_analysis():
                 test = True
 
         if test == False:
-            return render_template("failure.html", k="You are not allowed to look at this event!")
+            rendered_html = render_template("failure.html", k="You are not allowed to look at this event!")
+            return html_minify(rendered_html)
         view_lst = []
         rating_lst = []
         for p in range(len(pay)):
@@ -392,14 +405,17 @@ def what_if_analysis():
 
         clf = linear_model.LinearRegression()
         clf.fit(betas, y_vals)
-        return render_template('what_if_analysis.html', coefficient=clf.coef_, intercept=clf.intercept_)
+        rendered_html = render_template('what_if_analysis.html', coefficient=clf.coef_, intercept=clf.intercept_)
+        return html_minify(rendered_html)
 
     except:
         if len(views) < 2 and len(ratings) < 2 and len(pay) < 2:
-            return render_template("failure.html", k="There is not enough data to do the processing")
+            rendered_html = render_template("failure.html", k="There is not enough data to do the processing")
+            return html_minify(rendered_html)
 
         else:
-            return render_template("failure.html")
+            rendered_html = render_template("failure.html")
+            return html_minify(rendered_html)
 
 
 def filtered_recommendation():
@@ -456,7 +472,8 @@ def welcome():
                 user.users_category.append(cat1)
                 db.session.commit()
         return redirect(url_for('home'))
-    return render_template('welcome.html', lst=category_list)
+    rendered_html = render_template('welcome.html', lst=category_list)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -474,8 +491,8 @@ def newevent():
                      form.admission.data, form.description.data, form.contact.data)
         form.poster.data.save(os.path.join('app/static/posters', filename))
         return redirect(url_for('home'))
-    return render_template('newevent.html', form=form, user_id=user_id)
-
+    rendered_html = render_template('newevent.html', form=form, user_id=user_id)
+    return html_minify(rendered_html)
 
 # @security.context_processor
 @app.route('/details/<idnum>', methods=['GET', 'POST'])
@@ -492,9 +509,9 @@ def details(idnum):
     contact = Users.query.all()
     event_id = idnum
     hit = Hit.query.filter_by(event_id=idnum).first()
-    return render_template('details.html', form=form, hit=hit, event=event, category=category, user_id=user_id,
+    rendered_html = render_template('details.html', form=form, hit=hit, event=event, category=category, user_id=user_id,
                            event_id=event_id, users=users, contact=contact)
-
+    return html_minify(rendered_html)
 
 def getUsername(user_id):
     user = Users.query.filter_by(id=user_id).first()
@@ -512,7 +529,8 @@ def stats():
     user_id = g.user
     creator = Users.query.filter_by(id=user_id).first()
     events = Event.query.filter_by(creator=creator.id).all()
-    return render_template('test.html', events=events, creator=creator)
+    rendered_html = render_template('test.html', events=events, creator=creator)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -553,8 +571,8 @@ def update_event():
             event.contact = form.contact.data
         db.session.commit()
         return redirect(url_for("details", idnum=idnum))
-    return render_template('event_update.html', event=event, form=form)
-
+    rendered_html = render_template('event_update.html', event=event, form=form)
+    return html_minify(rendered_html)
 
 # @security.context_processor
 @app.route('/stats', methods=['GET', 'POST'])
@@ -581,9 +599,9 @@ def getStats():
         visits.append(hit.sum)
         days.append("day" + str(i))
         i += 1
-    return render_template('event_stats.html', event=event, ratings=json.dumps(ratings), visits=json.dumps(visits),
+    rendered_html = render_template('event_stats.html', event=event, ratings=json.dumps(ratings), visits=json.dumps(visits),
                            comments=json.dumps(comments), days=days)
-
+    return html_minify(rendered_html)
 
 # @security.context_processor
 @app.route('/comment_sent', methods=['GET', 'POST'])
@@ -604,7 +622,8 @@ def add_comment():
 def get_comments():
     event_id = request.args.get('c', type=str)
     comments = Comment.query.filter_by(event_id=event_id).order_by('id desc').all()
-    return render_template('comments.html', comments=comments)
+    rendered_html = render_template('comments.html', comments=comments)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -617,17 +636,23 @@ def load_user(id):
 @app.route('/profile')
 # @login_required
 def profile():
-    return render_template('profile.html', title='Profile Page', facebook_conn=social.facebook.get_connection())
+    rendered_html = render_template('profile.html', title='Profile Page',\
+                    facebook_conn=social.facebook.get_connection() if social.facebook else None,\
+                    google_conn=social.google.get_connection() if social.google else None, \
+                    twitter_conn=social.twitter.get_connection() if social.twitter else None)
+    return html_minify(rendered_html)
 
 
 @security.context_processor
 @app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = Login2()
-    if form.validate_on_submit():
-        return redirect(url_for('landing'))
+@app.route('/register/<provider_id>', methods=['POST'])
+def register(provider_id=None):
+    if provider_id:
+        provider = get_provider_or_404(provider_id)
+        connection_values = session.get('failed_login_connection', None)
 
-    return render_template('login2.html', form=form)
+    rendered_html = render_template('login2.html')
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -635,9 +660,9 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        email = form.email.data
+        e_mail = form.email.data
         password = form.password.data
-        registered_user = Users.query.filter_by(email=email, password=password).first()
+        registered_user = Users.query.filter_by(email=e_mail, password=password).first()
         if registered_user is None:
             err = "Email or Password is invalid"
             return render_template("login.html", err=err, form=form)
@@ -645,7 +670,8 @@ def login():
         session['user'] = email
         login_user(registered_user)
         return redirect(request.args.get('next') or url_for('home'))
-    return render_template("login.html", form=form)
+    rendered_html = render_template("login.html", form=form, title='Register')
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -686,7 +712,8 @@ def signup():
             db.session.add(new_user.follow(new_user))
             db.session.commit()
             return redirect(url_for('login'))
-    return render_template('signup.html', form=form)
+    rendered_html = render_template('signup.html', form=form)
+    return html_minify(rendered_html)
 
 
 # @security.context_processor
@@ -727,8 +754,8 @@ def rating_sent():
 @app.route('/feed_test', methods=['GET', 'POST'])
 @login_required
 def feed_test():
-    return render_template('feed_test.html')
-
+    rendered_html = render_template('feed_test.html')
+    return html_minify(rendered_html)
 
 # @security.context_processor
 @app.route('/recommendations', methods=['GET', 'POST'])
@@ -762,8 +789,9 @@ def recommend():
             if v.get('category') == c.id and v.get('days') > 0:
                 if i.category_name not in cat_list:
                     catlist.append(c.category_name)
-    return render_template('recommendations.html', recommend=recommend_, recommends=recommends, category=category,
+    rendered_html = render_template('recommendations.html', recommend=recommend_, recommends=recommends, category=category,
                            cat_list=cat_list)
+    return html_minify(rendered_html)
 
 
 def top_recommend(event_id):
@@ -900,8 +928,8 @@ def search():
         search_text = request.form['search_text']
         if search_text:
             events = Event.query.filter(Event.eventname.like('%' + search_text + '%')).order_by("id desc").all()
-            return render_template('search.html', events=events, search_text=search_text)
-
+            rendered_html = render_template('search.html', events=events, search_text=search_text)
+            return html_minify(rendered_html)
 
 # @security.context_processor
 @app.route('/usersearch', methods=["POST", "GET"])
