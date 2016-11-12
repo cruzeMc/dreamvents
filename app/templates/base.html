@@ -1,58 +1,67 @@
 <!DOCTYPE html>
 <html lang="{{ lang }}">
-    <head>
-        <!-- <title{{ title }}></title> -->
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}" media="screen,projection,handheld">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}" media="screen,projection,handheld">
-{#        <link href="{{ url_for('static', filename='css/material-template/style.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">#}
-        <link href="{{ url_for('static', filename='css/material-template/materialize.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">
-        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
-        <link href="{{ url_for('static', filename='css/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">
-        <link href="{{ url_for('static', filename='css/plugins/jvectormap/jquery-jvectormap.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">
-        <link href="{{ url_for('static', filename='css/plugins/chartist-js/chartist.min.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">
-        {% block additional %}
-        {% endblock %}
-    </head>
-    <body onload="swap_stylesheet()">
-        {% if user()=="Guest" %}
-            <header>
-                {% include "header_guest.html" %}
-            </header>
-        {% endif %}
+<head>
+    <!-- <title{{ title }}></title> -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}"
+          media="screen,projection,handheld">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}"
+          media="screen,projection,handheld">
+    {#        <link href="{{ url_for('static', filename='css/material-template/style.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">#}
+    {#        <link href="{{ url_for('static', filename='css/material-template/materialize.css') }}" type="text/css" rel="stylesheet" media="screen,projection,handheld">#}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='sweetalert/sweetalert.css') }}" media="screen,projection,handheld">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animate.css') }}" media="screen,projection,handheld">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='sweetalert/sweetalert.min.js') }}"></script>
+    <link href="{{ url_for('static', filename='css/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" type="text/css"
+          rel="stylesheet" media="screen,projection,handheld">
+    <link href="{{ url_for('static', filename='css/plugins/jvectormap/jquery-jvectormap.css') }}" type="text/css"
+          rel="stylesheet" media="screen,projection,handheld">
+    <link href="{{ url_for('static', filename='css/plugins/chartist-js/chartist.min.css') }}" type="text/css"
+          rel="stylesheet" media="screen,projection,handheld">
+    {% block additional %}
+    {% endblock %}
+</head>
+<body onload="swap_stylesheet()">
+{% if user()=="Guest" %}
+    <header>
+        {% include "header_guest.html" %}
+    </header>
+{% endif %}
 
-        {% if user()!="Guest" and user_role()=="USER" %}
-            <header>
-                {% include "header_patron.html" %}
-            </header>
-        {% endif %}
+{% if user()!="Guest" and user_role()=="USER" %}
+    <header>
+        {% include "header_patron.html" %}
+    </header>
+{% endif %}
 
-        {% if user()!="Guest" and user_role()=="PROMOTER" %}
-            <header>
-                {% include "header_promoter.html" %}
-            </header>
-        {% endif %}
+{% if user()!="Guest" and user_role()=="PROMOTER" %}
+    <header>
+        {% include "header_promoter.html" %}
+    </header>
+{% endif %}
 
-        <div id="main" role="main">
-            {% block body %}
-            {% endblock %}
-        </div>
-        <footer>
-            {% include "footer.html" %}
-        </footer>
-        <!--<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>-->
+<div id="main" role="main">
+    {% block body %}
+    {% endblock %}
+</div>
+<footer>
+    {% include "footer.html" %}
+</footer>
+<!--<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>-->
 
-        <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/search1.js') }}"></script>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $('.modal-trigger').leanModal();
-            });
-        </script>
-    </body>
+<script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/search1.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.modal-trigger').leanModal();
+    });
+</script>
+</body>
 </html>

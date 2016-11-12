@@ -58,6 +58,7 @@ class Event(db.Model):
     creator = db.Column(db.Integer, db.ForeignKey('users.id'))
     category = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=True)
     poster = db.Column(db.String(120))
+    poster_format = db.Column(db.String(7))
     eventname = db.Column(db.String(120))
     date = db.Column(db.String(120))
     start_time = db.Column(db.String(80))
@@ -365,3 +366,32 @@ class Uservideocomment(db.Model):
     video_id = db.Column('video_id', db.Integer, db.ForeignKey('uservideo.id'))
     comment = db.Column(db.String(500))
     timestamp = db.Column(db.DateTime())
+
+
+class Watching(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    event_id = db.Column('event_id', db.Integer, db.ForeignKey('event.id'))
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.String(10))
+
+    def __init__(self, event_id, users_id, status):
+        self.event_id = event_id
+        self.users_id = users_id
+        self.status = status
+
+    def __repr__(self):
+        return '<Watching %r>' % self.event_id
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    event_id = db.Column('event_id', db.Integer, db.ForeignKey('event.id'))
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.String(10))
+
+    def __init__(self, event_id, users_id, status):
+        self.event_id = event_id
+        self.users_id = users_id
+        self.status = status
+
+    def __repr__(self):
+        return '<Like %r>' % self.event_id

@@ -27,6 +27,7 @@ from flask_social.views import connect_handler
 from flask_social import Social
 import pdb
 from htmlmin.minify import html_minify
+import ast
 
 user_datastore = SQLAlchemyUserDatastore(db, Users, Role)
 security = Security(app, user_datastore)
@@ -205,9 +206,9 @@ def events_listing(cat):
         due = time_remainding(evnt.date, evnt.start_time)
         event_lst.append({"id": evnt.id, "creator": evnt.creator, "category": evnt.category, "poster": evnt.poster,
                           "eventname": evnt.eventname, "date": evnt.date, "start_time": evnt.start_time,
-                          "end_time": evnt.end_time, "venue": evnt.venue, "lat": evnt.lat, "lng": evnt.lng,
+                          "end_time": evnt.end_time, "admission": evnt.admission, "venue": evnt.venue, "lat": evnt.lat, "lng": evnt.lng,
                           "capacity": evnt.capacity, "addmission": evnt.admission, "description": evnt.description,
-                          "contact": evnt.contact, "days": due[0], "hours": due[1]})
+                          "contact": evnt.contact, "days": due[0], "format": evnt.poster_format, "hours": due[1]})
     event_lst.sort(key=lambda x: (x["days"]))
     # card_lst = db.session.query(Card).filter_by(user_id=g.user).all()
     if request.method == "POST":
@@ -215,6 +216,50 @@ def events_listing(cat):
         return redirect(url_for('payment'))
     rendered_html = render_template('events.html', event_lst=event_lst, category=cat, form=form)
     return html_minify(rendered_html)
+
+
+@app.route('/watching', methods=['POST', 'GET'])
+def watching():
+    if current_user.is_anonymous is False:
+        event_id = request.args.get('a', None, type=str)
+
+        watching_already = db.session.query(Watching).filter_by(users_id=g.user, event_id=int(event_id)).first()
+
+        if watching_already is None:
+            insert_watching(int(event_id), g.user, 'active')
+        else:
+            if str(watching_already.status) == 'active':
+                watch = Watching.query.get(watching_already.id)
+                watch.status = 'inactive'
+                db.session.commit()
+            else:
+                watch = Watching.query.get(watching_already.id)
+                watch.status = 'active'
+                db.session.commit()
+    return ""
+
+
+@app.route('/like', methods=['POST', 'GET'])
+def like():
+    if current_user.is_anonymous is False:
+        event_id = request.args.get('a', None, type=str)
+
+        like_already = db.session.query(Like).filter_by(users_id=g.user, event_id=int(event_id)).first()
+
+        if like_already is None:
+            insert_like(int(event_id), g.user, 'active')
+        else:
+            if str(like_already.status) == 'active':
+                watch = Like.query.get(like_already.id)
+                watch.status = 'inactive'
+                db.session.commit()
+            else:
+                watch = Like.query.get(like_already.id)
+                watch.status = 'active'
+                db.session.commit()
+    return ""
+
+
 
 
 # @security.context_processor
@@ -665,13 +710,32 @@ def login():
         registered_user = Users.query.filter_by(email=e_mail, password=password).first()
         if registered_user is None:
             err = "Email or Password is invalid"
-            return render_template("login.html", err=err, form=form)
+            rendered_html = render_template("login.html", err=err, form=form, title='Register')
+            return html_minify(rendered_html)
         session['logged_in'] = True
         session['user'] = email
         login_user(registered_user)
         return redirect(request.args.get('next') or url_for('home'))
     rendered_html = render_template("login.html", form=form, title='Register')
     return html_minify(rendered_html)
+
+
+@app.route('/social_login', methods=['GET', 'POST'])
+def social_login():
+    rendered_html = render_template("social_login.html", title='Social Login')
+    return html_minify(rendered_html)
+
+
+@app.route('/login3', methods=['GET', 'POST'])
+def login3():
+    try:
+        user_data = request.args['a']
+        js = json.loads(user_data)
+        # pdb.set_trace()
+        print js
+        return redirect(url_for('home'))
+    except IOError:
+        return "Error: can't find file or read data"
 
 
 # @security.context_processor
