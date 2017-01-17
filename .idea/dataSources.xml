@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="1517784363">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="PostgreSQL - capstone@localhost" uuid="d99939ac-1dea-44ae-967d-685145a2e8ca">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
