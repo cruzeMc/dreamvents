@@ -1,10 +1,9 @@
 from app import app
 from flask import render_template, request, redirect, \
-    url_for, g, jsonify, session, json, current_app
+    url_for, g, jsonify, flash, session, json, current_app
 import os
-from app import login_manager, ALLOWED_EXTENSIONS
-from flask_security import login_user, logout_user, current_user
-from werkzeug import secure_filename
+from app import login_manager, login_required, logout_user, current_user, login_user, ALLOWED_EXTENSIONS
+from werkzeug.utils import secure_filename
 from recommender_engine import *
 from .form import *
 from app.sentiment_analysis import sentiment
@@ -19,19 +18,12 @@ import calendar
 import uuid
 from sklearn import linear_model
 from random import randint
-from flask_security import Security, SQLAlchemyUserDatastore, login_required
-from flask_security.decorators import anonymous_user_required
-from flask_social import SQLAlchemyConnectionDatastore
-from flask_social.utils import get_provider_or_404
-from flask_social.views import connect_handler
-from flask_social import Social
+from mail_handler import *
+
 import pdb
 from htmlmin.minify import html_minify
 import ast
-
-user_datastore = SQLAlchemyUserDatastore(db, Users, Role)
-security = Security(app, user_datastore)
-social = Social(app, SQLAlchemyConnectionDatastore(db, Connection))
+from config import EVENTS_PER_PAGE
 
 
 def allowed_file(filename):
@@ -52,7 +44,7 @@ def requires_roles(*roles):
     return wrapper
 
 
-@security.context_processor
+
 @app.route("/")
 @app.route("/landing")
 def landing():
@@ -60,7 +52,6 @@ def landing():
     rendered_html = render_template('landing.html', lst=category_list)
     return html_minify(rendered_html)
 
-# @security.context_processor
 @app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
@@ -125,15 +116,51 @@ def home():
         return redirect(url_for('welcome'))
 
 
-@app.route('/news_feed', methods=['GET'])
+##############################################################
+# Friend and Images
+##############################################################
+
+@app.route('/wore_what', methods=['GET'])
 @login_required
-def news_feed():
-    # photos = db.session.query(UserPhoto).filter_by(g.user)
+def wore_what():
+    photos = []
+    list_of_friends = db.session.query(followers).filter_by(follower_id=g.user)
+
+    for friend in list_of_friends:
+        grab_photos = db.session.query(Userphoto).filter_by(users_id=friend[1])
+        for photo in grab_photos:
+            photos.append(photo.image)
+
+    # friend_photos = db.session.query(Userphoto).filter_by()
     # photo_comment = db.session.query(UserPhotoComment).filter_by(g.user)
     # videos = db.session.query(UserVideo).filter_by(g.user)
     # video_comment = db.session.query(UserVideoComment).filter_by(g.user)
-    rendered_html = render_template('news_feed.html')#, photos=photos, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
+    rendered_html = render_template('wore_what.html', photos=photos)#, photo_comment=photo_comment, videos=videos, video_comment=video_comment)
     return html_minify(rendered_html)
+
+
+@app.route('/upload_photo', methods=['GET','POST'])
+@login_required
+def upload_photo():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            print ('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            print ('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+
+            file.save(os.path.join(app.config['WORE_WHAT'], filename))
+            insert_photo(g.user, filename)
+
+            flash('Successfully uploaded Photo')
+            return redirect(url_for('wore_what', num=1))
 
 
 
@@ -196,12 +223,14 @@ def friend_handler():
 ########################################################################################
 # PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL PAYPAL
 ########################################################################################
-@security.context_processor
 @app.route('/events/<int:cat>', methods=['GET', 'POST'])
-def events_listing(cat):
+@app.route('/events/<int:cat>/<int:page>', methods=['GET', 'POST'])
+def events_listing(cat, page):
     form = GetEventForm()
     event_lst = []
-    event_lsts = db.session.query(Event).filter_by(category=cat)
+    event_lsts = Event.query.filter_by(category=cat).paginate(page, EVENTS_PER_PAGE, True).items
+    event_lst_size = len(Event.query.filter_by(category=cat).all())/EVENTS_PER_PAGE
+
     for evnt in event_lsts:
         due = time_remainding(evnt.date, evnt.start_time)
         event_lst.append({"id": evnt.id, "creator": evnt.creator, "category": evnt.category, "poster": evnt.poster,
@@ -209,12 +238,13 @@ def events_listing(cat):
                           "end_time": evnt.end_time, "admission": evnt.admission, "venue": evnt.venue, "lat": evnt.lat, "lng": evnt.lng,
                           "capacity": evnt.capacity, "addmission": evnt.admission, "description": evnt.description,
                           "contact": evnt.contact, "days": due[0], "format": evnt.poster_format, "hours": due[1]})
+
     event_lst.sort(key=lambda x: (x["days"]))
-    # card_lst = db.session.query(Card).filter_by(user_id=g.user).all()
+
     if request.method == "POST":
         session['event_number'] = form.event_number.data
         return redirect(url_for('payment'))
-    rendered_html = render_template('events.html', event_lst=event_lst, category=cat, form=form)
+    rendered_html = render_template('events.html', event_lst=event_lst, event_lst_size=event_lst_size, category=cat, page=page, form=form)
     return html_minify(rendered_html)
 
 
@@ -341,7 +371,6 @@ def add_payment():
     return html_minify(rendered_html)
 
 
-# @security.context_processor
 @app.route('/success', methods=["GET"])
 @login_required
 def success():
@@ -349,7 +378,6 @@ def success():
     return html_minify(rendered_html)
 
 
-# @security.context_processor
 @app.route('/failure', methods=['GET'])
 @login_required
 def failure():
@@ -529,12 +557,20 @@ def newevent():
     form = EventForm()
     user_id = g.user
     if form.validate_on_submit():
-        img = form.poster.data
-        filename = secure_filename(img.filename)
+        poster = form.poster.data
+        filename = secure_filename(poster.filename)
+
+        # Get poster type: Image vs Video
+        poster_list = poster.split('.')
+        if poster_list[len(poster_list)-1] == "jpg" or poster_list[len(poster_list)-1] == "jpeg" or poster_list[len(poster_list)-1] == "png":
+            poster_format = "image"
+        else:
+            poster_format = "video"
+
+        form.poster.data.save(os.path.join('app/static/posters', filename))
         insert_event(user_id, form.category.data, filename, form.eventname.data, form.date.data, form.start_time.data,
                      form.end_time.data, form.venue.data, form.lat.data, form.lng.data, form.capacity.data,
-                     form.admission.data, form.description.data, form.contact.data)
-        form.poster.data.save(os.path.join('app/static/posters', filename))
+                     form.admission.data, form.description.data, form.contact.data, poster_format)
         return redirect(url_for('home'))
     rendered_html = render_template('newevent.html', form=form, user_id=user_id)
     return html_minify(rendered_html)
@@ -671,53 +707,57 @@ def get_comments():
     return html_minify(rendered_html)
 
 
-# @security.context_processor
 @login_manager.user_loader
 def load_user(id):
     return Users.query.get(int(id))
 
 
-# @security.context_processor
-@app.route('/profile')
-# @login_required
-def profile():
-    rendered_html = render_template('profile.html', title='Profile Page',\
-                    facebook_conn=social.facebook.get_connection() if social.facebook else None,\
-                    google_conn=social.google.get_connection() if social.google else None, \
-                    twitter_conn=social.twitter.get_connection() if social.twitter else None)
-    return html_minify(rendered_html)
-
-
-@security.context_processor
-@app.route('/register', methods=['GET', 'POST'])
-@app.route('/register/<provider_id>', methods=['POST'])
-def register(provider_id=None):
-    if provider_id:
-        provider = get_provider_or_404(provider_id)
-        connection_values = session.get('failed_login_connection', None)
-
-    rendered_html = render_template('login2.html')
-    return html_minify(rendered_html)
-
-
-# @security.context_processor
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
-        e_mail = form.email.data
-        password = form.password.data
-        registered_user = Users.query.filter_by(email=e_mail, password=password).first()
-        if registered_user is None:
-            err = "Email or Password is invalid"
-            rendered_html = render_template("login.html", err=err, form=form, title='Register')
-            return html_minify(rendered_html)
-        session['logged_in'] = True
-        session['user'] = email
-        login_user(registered_user)
-        return redirect(request.args.get('next') or url_for('home'))
+    if request.method == "POST":
+        if form.validate_on_submit():
+            e_mail = form.email.data
+            password = form.password.data
+            registered_user = Users.query.filter_by(email=e_mail, password=password).first()
+            if registered_user is None:
+                err = "Email or Password is invalid"
+                rendered_html = render_template("login.html", err=err, form=form, title='Register')
+                return html_minify(rendered_html)
+
+            session['logged_in'] = True
+            session['user'] = email
+            login_user(registered_user, remember=form.remember.data)
+            return redirect(request.args.get('next') or url_for('home'))
     rendered_html = render_template("login.html", form=form, title='Register')
     return html_minify(rendered_html)
+
+
+@app.route('/recover_account', methods=['GET', 'POST'])
+def recover_account():
+    form = RecoverAccountForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            e_mail = form.email.data
+            user_exist = Users.query.filter_by(email=e_mail).first()
+
+            if user_exist is None:
+                flash("Sorry, but you are not a user! Please sign up!")
+                return redirect(url_for('signup'))
+
+            else:
+                unique_string = uuid.uuid4()
+                message_sender("Click here: " + "http://localhost/verification/" + unique_string,
+                               ["cruze.m.mcfarlane@gmail.com"])
+                render_html = render_template("account_recovery_mail_sent.html")
+                return html_minify(render_html)
+    rendered_html = render_template("recover_account.html", form=form)
+    return html_minify(rendered_html)
+
+
+# @app.route('/verification/<str:link>', methods=['GET', 'POST'])
+# def verification(link):
+#     return link
 
 
 @app.route('/social_login', methods=['GET', 'POST'])
@@ -738,13 +778,11 @@ def login3():
         return "Error: can't find file or read data"
 
 
-# @security.context_processor
 @app.before_request
 def before_request():
     g.user = current_user.get_id()
 
 
-# @security.context_processor
 @app.route("/logout")
 @login_required
 def logout():
@@ -753,7 +791,12 @@ def logout():
     return redirect(url_for('landing'))
 
 
-# @security.context_processor
+@login_manager.unauthorized_handler
+def unauthorized():
+    rendered_html = render_template('unauthorized.html')
+    return html_minify(rendered_html)
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignupForm()
@@ -780,7 +823,6 @@ def signup():
     return html_minify(rendered_html)
 
 
-# @security.context_processor
 @app.route('/rating_sent', methods=['GET', 'POST'])
 @login_required
 def rating_sent():
@@ -814,14 +856,12 @@ def rating_sent():
         return jsonify(result=rating_num)
 
 
-# @security.context_processor
 @app.route('/feed_test', methods=['GET', 'POST'])
 @login_required
 def feed_test():
     rendered_html = render_template('feed_test.html')
     return html_minify(rendered_html)
 
-# @security.context_processor
 @app.route('/recommendations', methods=['GET', 'POST'])
 @login_required
 def recommend():
@@ -890,7 +930,6 @@ def top_recommend(event_id):
 app.jinja_env.globals.update(top_recommend=top_recommend)
 
 
-# @security.context_processor
 @app.route('/page_count', methods=['GET', 'POST'])
 @login_required
 def page_clicks():
@@ -985,7 +1024,6 @@ def picture():
 app.jinja_env.globals.update(picture=picture)
 
 
-# @security.context_processor
 @app.route('/search', methods=["POST", "GET"])
 def search():
     if request.method == 'POST':
@@ -995,7 +1033,7 @@ def search():
             rendered_html = render_template('search.html', events=events, search_text=search_text)
             return html_minify(rendered_html)
 
-# @security.context_processor
+
 @app.route('/usersearch', methods=["POST", "GET"])
 def usearch():
     if request.method == 'POST':
@@ -1021,7 +1059,6 @@ def time_remainding(dates, time):
     return [0, 0]
 
 
-# @security.context_processor
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404

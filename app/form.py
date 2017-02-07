@@ -4,12 +4,17 @@ from wtforms.validators import DataRequired, InputRequired, Email
 from flask_wtf.file import FileField, FileRequired
 from app.models import *
 
-c_type = [('','Card Type'), ('visa','Visa'), ('mastercard', 'MasterCard'), ('amex', 'Amex'), ('jcb', 'JCB'), ('discover', 'Discover')]
-e_month = [('','Expire Month'), ('01','Jan'), ('02','Feb'), ('03','Mar'), ('04','Apr'), ('05','May'), ('06','June'), ('07','July'), ('08','Aug'), ('09','Sept'), ('10','Oct'), ('11','Nov'), ('12','Dec')]
-p_method = [('', 'Payment Method'), ('credit_card','Credit Card'), ('debit_card','Debit Card')]
-e_year=[('','Expire year')]
+c_type = [('', 'Card Type'), ('visa', 'Visa'), ('mastercard', 'MasterCard'), ('amex', 'Amex'), ('jcb', 'JCB'), ('discover', 'Discover')]
+e_month = [('', 'Expire Month'), ('01', 'Jan'), ('02', 'Feb'), ('03', 'Mar'), ('04', 'Apr'), ('05', 'May'), ('06','June'), ('07','July'), ('08','Aug'), ('09','Sept'), ('10','Oct'), ('11','Nov'), ('12','Dec')]
+p_method = [('', 'Payment Method'), ('credit_card', 'Credit Card'), ('debit_card', 'Debit Card')]
+e_year = [('', 'Expire year')]
+poster_choices = [('Image', 'Image'), ('YouTube', 'YouTube'), ('Video', 'Video')]
+gender = [('Male', 'Male'), ('Female', 'Female')]
+user_type = [("", "Select Account Type"), ("USER", "User"), ("PROMOTER", "Promoter")]
+
 for i in range(2016, 2031):
-  e_year.append((str(i), str(i)))
+    e_year.append((str(i), str(i)))
+
 
 def getCategory():
     category_names = [("", "Select Category")]
@@ -21,26 +26,29 @@ def getCategory():
     except Exception:
         return category_names
 
+
 class Login2(FlaskForm):
     username = StringField('Username', validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
     remember = BooleanField('Remember me')
     confirm = SubmitField('Login')
 
+
 class EventForm(FlaskForm):
     poster = FileField('Poster')
+    # poster_format = RadioField('Poster Format', choices=poster_choices, validators=[DataRequired()])
     eventname = StringField('Event Name', validators=[DataRequired()])
     category = SelectField('Category', choices=getCategory(), validators=[DataRequired()])
-    date = StringField('date')
-    start_time = StringField('start_time')
-    end_time = StringField('end_time')
-    venue = StringField('venue')
-    lat = StringField('lat')
-    lng = StringField('lng')
-    capacity = StringField('capacity')
-    admission = StringField('admission')
-    description = StringField('description')
-    contact = StringField('contact')
+    date = StringField('date')#, validators=[DataRequired()])
+    start_time = StringField('start_time', validators=[DataRequired()])
+    end_time = StringField('end_time', validators=[DataRequired()])
+    venue = StringField('venue', validators=[DataRequired()])
+    lat = StringField('lat')#, validators=[DataRequired()])
+    lng = StringField('lng')#, validators=[DataRequired()])
+    capacity = StringField('capacity', validators=[DataRequired()])
+    admission = StringField('admission', validators=[DataRequired()])
+    description = StringField('description', validators=[DataRequired()])
+    contact = StringField('contact', validators=[DataRequired()])
 
 
 class UpdateForm(FlaskForm):
@@ -63,6 +71,7 @@ class UpdateForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('Email', [validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
+    remember = BooleanField("remember-me")
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -86,6 +95,10 @@ class LoginForm(FlaskForm):
         return True
 
 
+class RecoverAccountForm(FlaskForm):
+    email = StringField('email', [validators.DataRequired(), validators.Email()])
+
+
 class SignupForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
@@ -96,8 +109,8 @@ class SignupForm(FlaskForm):
     address = StringField('Address', validators=[DataRequired()])
     age = StringField('Age', validators=[DataRequired()])
     profile_pic = FileField('Profile Picture', validators=[FileRequired()])
-    sex = RadioField('Sex', choices=[('Male', 'Male'), ('Female', 'Female')], validators=[InputRequired()])
-    utype = SelectField('Account Type', choices=[("", "Select Account Type"), ("USER", "User"), ("PROMOTER", "Promoter")], validators=[validators.DataRequired(message='Please Select an account Type')])
+    sex = RadioField('Sex', choices=gender, validators=[InputRequired()])
+    utype = SelectField('Account Type', choices=user_type, validators=[validators.DataRequired(message='Please Select an account Type')])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)

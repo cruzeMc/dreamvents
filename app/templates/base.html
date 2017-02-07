@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{#    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">#}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='material-design-icons/implementation.css') }}">
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}"
           media="screen,projection,handheld">
@@ -59,9 +60,10 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/search1.js') }}"></script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('.modal-trigger').leanModal();
-    });
+    $(document).ready(function(){
+    // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+    $('.modal').modal();
+  });
 </script>
 </body>
 </html>

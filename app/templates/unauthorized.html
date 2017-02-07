@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block body %}
+    <script type="application/javascript">
+        swal({
+                title: "Not Authorized!",
+                text: "Login or create an account.",
+                type: "warning",
+                showCancelButton: false,
+                confirmButtonColor: "#dd0f0f",
+                confirmButtonText: "Cancel",
+                closeOnConfirm: false
+            });
+    </script>
+{% endblock %}

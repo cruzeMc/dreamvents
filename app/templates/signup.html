@@ -10,6 +10,20 @@
     </script>
 {% endblock %}
 {% block body %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <script type="application/javascript">
+                    swal({
+                        title: "Ooops!",
+                        text: "{{ message }}",
+                        html: true,
+                    });
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <div id="signup-page" class="row">
         <div class="col s12 z-depth-6 card-panel">
             <div class="row">

@@ -1,6 +1,5 @@
 from . import db
 import datetime
-from flask_security import UserMixin, RoleMixin
 
 ACTIVE_PATRON = 1
 PROMOTER = 1
@@ -77,7 +76,7 @@ class Event(db.Model):
     payments = db.relationship('Payment', backref='event_payment', lazy='dynamic')
     
     def __init__(self, creator, category, poster, eventname, date, start_time, end_time, venue, lat, lng, capacity,\
-                 admission, description, contact):
+                 admission, description, contact, poster_format):
         self.creator = creator
         self.category = category
         self.poster = poster
@@ -92,18 +91,19 @@ class Event(db.Model):
         self.admission = admission
         self.description = description
         self.contact = contact
+        self.poster_format = poster_format
 
     def __repr__(self):
         return '<Event %r>' % self.eventname
 
 
-class Role(db.Model, RoleMixin):
+class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
 
-class Users(db.Model, UserMixin):
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     first_name = db.Column(db.String(80))
     last_name = db.Column(db.String(80))
@@ -342,6 +342,10 @@ class Userphoto(db.Model):
 
     user_photo_comment = db.relationship('Userphotocomment', backref='user_photo_user_comment', lazy='dynamic')
 
+    def __init__(self, users_id, image, timestamp):
+        self.users_id = users_id
+        self.image = image
+        self.timestamp = timestamp
 
 class Userphotocomment(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)

@@ -1,7 +1,6 @@
 pip
 Flask
 SQLAlchemy
-Flask-Login
 Flask-User
 Flask-Migrate
 Flask-WTF
@@ -19,11 +18,10 @@ dicts
 paypalrestsdk
 paypal
 Flask-Session
-Flask-Security
-Flask-Social
 oauth2client
 google-api-python-client
 facebook-sdk
 python-twitter
 python-instagram
 rapidconnect
+flask-mail

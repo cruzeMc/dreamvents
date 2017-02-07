@@ -43,7 +43,7 @@
                     <div class="col s12 m4 l4">
                         <div class="card-panel hoverable medium">
                             <div class="card-image">
-                                <a href="/events/{{ i.id }}" style="margin:auto;"><img
+                                <a href="/events/{{ i.id }}/1" style="margin:auto;"><img
                                         src="/static/background/jpg/party_img.jpg" alt=""
                                         class="circle responsive-img"></a>
                                 <span class="card-title">{{ i.category_name }}</span>
@@ -55,14 +55,22 @@
         </div>
     </div>
 
-    <script>
-        $(document).ready(function () {
-            $('.carousel.carousel-slider').carousel({full_width: true});
+{#    <script>#}
+{#        $(document).ready(function () {#}
+{#            $('.carousel.carousel-slider').carousel({full_width: true});#}
+{##}
+{#            window.setInterval(function () {#}
+{#                $('.carousel').carousel('next')#}
+{#            }, 3000);#}
+{#        });#}
+{#    </script>#}
 
-            window.setInterval(function () {
-                $('.carousel').carousel('next')
-            }, 3000);
-        });
+    <script type="application/javascript">
+        $('.carousel.carousel-slider').carousel({fullWidth: true});
+
+        window.setInterval(function (){
+            $(".carousel").carousel("next")
+        }, 4000);
     </script>
 
     <script>

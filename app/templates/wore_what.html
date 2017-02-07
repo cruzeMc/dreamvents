@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block body %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <script type="application/javascript">
+                    swal({
+                        title: "Sweat!",
+                        text: "{{ message }}",
+                        html: true,
+                        imageUrl: "/static/default-images/thumbs-up.jpg"
+                    });
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if photos %}
+        <div class="carousel">
+            {% for photo in photos %}
+                <a class="carousel-item" href="#one!"><img class="materialboxed" src="/static/wore_what/{{ photo }}"></a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <script type="application/javascript">
+        $(document).ready(function () {
+            $('.carousel').carousel();
+        });
+
+        $(document).ready(function () {
+            $('.materialboxed').materialbox();
+        });
+    </script>
+
+    {#    {% if photos %}#}
+    {#        {% for photo in photos %}#}
+    {#             <div class="col s12 m4 l4">#}
+    {#                 <div class="card small hoverable">#}
+    {#                    <div class="card-image">#}
+    {#                        <img src="/static/wore_what/{{ photo }}">#}
+    {#                    </div>#}
+    {##}
+    {#                     <ul class="card-action-buttons">#}
+    {#                         <li>#}
+    {#                             <a class="btn-floating waves-effect waves-light red accent-2"#}
+    {#                                onclick="Materialize.toast('Liked', 4000, 'rounded')">#}
+    {#                                 <i class="material-icons">favorite</i>#}
+    {#                             </a>#}
+    {#                         </li>#}
+    {#                     </ul>#}
+    {#                     <div class="card-content">#}
+    {#                         <span class="card-title activator grey-text text-darken-4">#}
+    {#                         </span>#}
+    {#                     </div>#}
+    {#                 </div>#}
+    {#             </div>#}
+    {#        {% endfor %}#}
+    {#    {% endif %}#}
+
+{% endblock %}
